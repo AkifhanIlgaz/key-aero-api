@@ -76,10 +76,12 @@ func (service *TokenService) ParseAccessToken(token string) (*jwt.StandardClaims
 	return claims, nil
 }
 
+// TODO: Implement
 func (service *TokenService) GenerateRefreshToken(uid string) (string, error) {
-
+	return "", nil
 }
 
+// TODO: Implement
 func (service *TokenService) DeleteRefreshToken(refreshToken string) error {
-
+	return nil
 }
