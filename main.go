@@ -1,10 +1,10 @@
 package main
 
 import (
-	"context"
 	"log"
 
 	"github.com/AkifhanIlgaz/key-aero-api/cfg"
+	"github.com/AkifhanIlgaz/key-aero-api/db"
 )
 
 func main() {
@@ -13,18 +13,13 @@ func main() {
 		log.Fatal("Could not read environment variables", err)
 	}
 
-	ctx := context.TODO()
-
-	mongoClient, err := connectToMongo(ctx, config.MongoUri)
+	databases, err := db.ConnectToDatabases(config)
 	if err != nil {
-		log.Fatal("Could not connect to mongo", err)
+		log.Fatal("Could not connect to databases", err)
 	}
-	defer mongoClient.Disconnect(ctx)
 
-	redisClient, err := connectToRedis(ctx, config.RedisUri)
-	if err != nil {
-		log.Fatal("Could not connect to redis", err)
-	}
-	defer redisClient.Close()
+	defer databases.Postgres.Close()
+	defer databases.Redis.Close()
+
+	
 }
-
