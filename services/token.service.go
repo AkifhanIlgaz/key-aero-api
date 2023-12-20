@@ -9,6 +9,7 @@ import (
 	"github.com/AkifhanIlgaz/key-aero-api/cfg"
 	"github.com/go-redis/redis/v8"
 	"github.com/golang-jwt/jwt"
+	"github.com/thanhpk/randstr"
 )
 
 type TokenService struct {
@@ -76,12 +77,21 @@ func (service *TokenService) ParseAccessToken(token string) (*jwt.StandardClaims
 	return claims, nil
 }
 
-// TODO: Implement
 func (service *TokenService) GenerateRefreshToken(uid string) (string, error) {
-	return "", nil
+	refreshToken := randstr.String(32)
+
+	err := service.redisClient.Set(service.ctx, refreshToken, uid, 7*time.Hour*24).Err()
+	if err != nil {
+		return "", fmt.Errorf("generate refresh token: %w", err)
+	}
+
+	return refreshToken, nil
 }
 
-// TODO: Implement
 func (service *TokenService) DeleteRefreshToken(refreshToken string) error {
+	if err := service.redisClient.Del(service.ctx, refreshToken).Err(); err != nil {
+		return fmt.Errorf("delete refresh token: %w", err)
+	}
+
 	return nil
 }
