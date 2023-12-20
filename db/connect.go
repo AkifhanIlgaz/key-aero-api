@@ -34,7 +34,7 @@ func ConnectToDatabases(config *cfg.Config) (*Databases, error) {
 }
 
 func connectToPostgres(config *cfg.Config) (*sql.DB, error) {
-	connectionString := fmt.Sprintf("host=%s port=%d user=%s "+
+	connectionString := fmt.Sprintf("host=%s port=%v user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		config.PostgresHost, config.PostgresPort, config.PostgresUser, config.PostgresPassword, config.PostgresDBName)
 

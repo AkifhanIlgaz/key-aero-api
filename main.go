@@ -15,11 +15,9 @@ func main() {
 
 	databases, err := db.ConnectToDatabases(config)
 	if err != nil {
-		log.Fatal("Could not connect to databases", err)
+		log.Fatal("Could not connect to databases: ", err)
 	}
 
 	defer databases.Postgres.Close()
 	defer databases.Redis.Close()
-
-	
 }
