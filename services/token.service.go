@@ -2,6 +2,9 @@ package services
 
 import (
 	"context"
+	"encoding/base64"
+	"fmt"
+	"time"
 
 	"github.com/AkifhanIlgaz/key-aero-api/cfg"
 	"github.com/go-redis/redis/v8"
@@ -23,11 +26,54 @@ func NewTokenService(ctx context.Context, config *cfg.Config, redisClient *redis
 }
 
 func (service *TokenService) GenerateAccessToken(uid string) (string, error) {
+	decodedPrivateKey, err := base64.StdEncoding.DecodeString(service.config.AccessTokenPrivateKey)
+	if err != nil {
+		return "", fmt.Errorf("generate access token: %w", err)
+	}
 
+	key, err := jwt.ParseRSAPrivateKeyFromPEM(decodedPrivateKey)
+	if err != nil {
+		return "", fmt.Errorf("generate access token: %w", err)
+	}
+
+	now := time.Now().UTC()
+
+	claims := jwt.StandardClaims{}
+	claims.Subject = uid
+	claims.ExpiresAt = now.Add(service.config.AccessTokenExpiresIn).Unix()
+	claims.IssuedAt = now.Unix()
+	claims.NotBefore = now.Unix()
+
+	token, err := jwt.NewWithClaims(jwt.SigningMethodRS256, claims).SignedString(key)
+	if err != nil {
+		return "", fmt.Errorf("generate access token: %w", err)
+	}
+
+	return token, nil
 }
 
 func (service *TokenService) ParseAccessToken(token string) (*jwt.StandardClaims, error) {
+	decodedPublicKey, err := base64.StdEncoding.DecodeString(service.config.AccessTokenPublicKey)
+	if err != nil {
+		return nil, fmt.Errorf("parse access token: %w", err)
+	}
 
+	parsedToken, err := jwt.ParseWithClaims(token, &jwt.StandardClaims{}, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodRSA); !ok {
+			return jwt.StandardClaims{}, fmt.Errorf("unexpected method: %s", t.Header["alg"])
+		}
+		return jwt.ParseRSAPublicKeyFromPEM(decodedPublicKey)
+	})
+	if err != nil {
+		return nil, fmt.Errorf("parse access token: %w", err)
+	}
+
+	claims, ok := parsedToken.Claims.(*jwt.StandardClaims)
+	if !ok || !parsedToken.Valid {
+		return nil, fmt.Errorf("validate: invalid token")
+	}
+
+	return claims, nil
 }
 
 func (service *TokenService) GenerateRefreshToken(uid string) (string, error) {
