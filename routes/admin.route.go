@@ -25,9 +25,6 @@ func (routeController *AdminRouteController) AdminRoute(rg *gin.RouterGroup) {
 
 	userRouter := router.Group("/user")
 	{
-		// Get User
-		// ?id=<id> || ?username=<usernam>
-		// router.GET("/", )
 		userRouter.GET("/all", routeController.adminController.GetAllUsers)
 		userRouter.POST("/add", routeController.adminController.AddUser)
 		userRouter.PUT("/update/:id", routeController.adminController.UpdateUser)

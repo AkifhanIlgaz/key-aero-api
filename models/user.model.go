@@ -6,3 +6,9 @@ type User struct {
 	PasswordHash string
 	Roles        []string
 }
+
+type AddUserInput struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Roles    string `json:"roles"`
+}

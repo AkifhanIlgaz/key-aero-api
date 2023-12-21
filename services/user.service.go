@@ -26,8 +26,37 @@ func (service *UserService) CreateUser(user *models.User) error {
 	return nil
 }
 
-func (service *UserService) GetUsers() ([]*models.User, error) {
-	return nil, nil
+func (service *UserService) GetUsers() ([]models.User, error) {
+	var users []models.User
+
+	rows, err := service.db.Query(`
+	SELECT id, username, roles FROM users;
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("get all users: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var user models.User
+		var roles string
+
+		err := rows.Scan(&user.Id, &user.Username, &roles)
+		if err != nil {
+			// TODO: Better error handling
+			fmt.Println(err)
+			continue
+		}
+
+		user.Roles = utils.ParseRoles(roles)
+		users = append(users, user)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("get all users: %w", err)
+	}
+
+	return users, nil
 }
 
 func (service *UserService) UpdateUser(uid string) error {
