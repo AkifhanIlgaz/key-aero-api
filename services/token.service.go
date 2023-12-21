@@ -89,15 +89,14 @@ func (service *TokenService) GenerateRefreshToken(uid string) (string, error) {
 	return refreshToken, nil
 }
 
-func (service *TokenService) DeleteRefreshToken(refreshToken string) error {
-
-
-	if err := service.redisClient.Del(service.ctx, refreshToken).Err(); err != nil {
+func (service *TokenService) DeleteRefreshToken(refreshToken string) (string, error) {
+	uid, err := service.redisClient.GetDel(service.ctx, refreshToken).Result()
+	if err != nil {
 		if err == redis.Nil {
-			return errors.ErrRefreshTokenMissing
+			return "", errors.ErrRefreshTokenMissing
 		}
-		return fmt.Errorf("delete refresh token: %w", err)
+		return "", fmt.Errorf("delete refresh token: %w", err)
 	}
 
-	return nil
+	return uid, err
 }

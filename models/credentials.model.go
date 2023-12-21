@@ -8,3 +8,7 @@ type Credentials struct {
 type SignOutCredentials struct {
 	RefreshToken string `json:"refreshToken" binding:"required"`
 }
+
+type RefreshCredentials struct {
+	RefreshToken string `json:"refreshToken" binding:"required"`
+}

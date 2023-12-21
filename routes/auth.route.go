@@ -20,8 +20,6 @@ func (routeController *AuthRouteController) AuthRoute(rg *gin.RouterGroup) {
 	// TODO: Middlewares ?
 
 	router.POST("/signin", routeController.authController.SignIn)
-	// TODO: Implement
-	// ? Extract user middleware
 	router.POST("/signout", routeController.authController.SignOut)
 
 	router.POST("/refresh", routeController.authController.Refresh)

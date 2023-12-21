@@ -82,7 +82,7 @@ func (controller *AuthController) SignOut(ctx *gin.Context) {
 		return
 	}
 
-	err := controller.tokenService.DeleteRefreshToken(credentials.RefreshToken)
+	_, err := controller.tokenService.DeleteRefreshToken(credentials.RefreshToken)
 	if err != nil {
 		if err != errors.ErrRefreshTokenMissing {
 			utils.ResponseWithMessage(ctx, http.StatusBadRequest, gin.H{
@@ -101,4 +101,49 @@ func (controller *AuthController) SignOut(ctx *gin.Context) {
 	})
 }
 
-func (controller *AuthController) Refresh(ctx *gin.Context) {}
+func (controller *AuthController) Refresh(ctx *gin.Context) {
+	var credentials models.SignOutCredentials
+	if err := ctx.ShouldBindJSON(&credentials); err != nil {
+		utils.ResponseWithMessage(ctx, http.StatusBadRequest, gin.H{
+			"message": errors.ErrRefreshTokenMissing.Error(),
+		})
+		return
+	}
+
+	uid, err := controller.tokenService.DeleteRefreshToken(credentials.RefreshToken)
+	if err != nil {
+		if err == errors.ErrRefreshTokenMissing {
+			utils.ResponseWithMessage(ctx, http.StatusBadRequest, gin.H{
+				"message": errors.ErrRefreshTokenMissing.Error(),
+			})
+			return
+		}
+		utils.ResponseWithMessage(ctx, http.StatusInternalServerError, gin.H{
+			"message": errors.ErrSomethingWentWrong.Error(),
+		})
+		return
+	}
+
+	accessToken, err := controller.tokenService.GenerateAccessToken(uid)
+	if err != nil {
+		utils.ResponseWithMessage(ctx, http.StatusInternalServerError, gin.H{
+			"message": "Something went wrong",
+		})
+		return
+	}
+
+	refreshToken, err := controller.tokenService.GenerateRefreshToken(uid)
+	if err != nil {
+		utils.ResponseWithMessage(ctx, http.StatusInternalServerError, gin.H{
+			"message": "Something went wrong",
+		})
+		return
+	}
+
+	fmt.Println("refresh for user", uid)
+
+	utils.ResponseWithMessage(ctx, http.StatusOK, gin.H{
+		"accessToken":  accessToken,
+		"refreshToken": refreshToken,
+	})
+}
