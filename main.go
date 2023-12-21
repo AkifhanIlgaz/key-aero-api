@@ -44,7 +44,7 @@ func main() {
 	authRouteController := routes.NewAuthRouteController(authController)
 
 	router := server.Group("/api")
-	router.GET("/health-checker", userMiddleware.ExtractUser(), func(ctx *gin.Context) {
+	router.GET("/health-checker", userMiddleware.ExtractUser(), userMiddleware.HasRole("zozak"), func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": "API is healthy"})
 	})
 
