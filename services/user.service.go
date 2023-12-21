@@ -24,7 +24,7 @@ func NewUserService(ctx context.Context, db *sql.DB) *UserService {
 	}
 }
 
-func (service *UserService) CreateUser(input *models.AddUserInput) error {
+func (service *UserService) CreateUser(input models.AddUserInput) error {
 	passwordHash, err := utils.HashPassword(input.Password)
 	if err != nil {
 		return fmt.Errorf("create user: %w", err)

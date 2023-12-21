@@ -3,6 +3,8 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/AkifhanIlgaz/key-aero-api/errors"
+	"github.com/AkifhanIlgaz/key-aero-api/models"
 	"github.com/AkifhanIlgaz/key-aero-api/services"
 	"github.com/AkifhanIlgaz/key-aero-api/utils"
 	"github.com/gin-gonic/gin"
@@ -21,7 +23,32 @@ func NewAdminController(userService *services.UserService, tokenService *service
 }
 
 func (controller *AdminController) AddUser(ctx *gin.Context) {
+	var input models.AddUserInput
 
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		utils.ResponseWithMessage(ctx, http.StatusBadRequest, gin.H{
+			"message": "There are some missing required fields",
+		})
+		return
+	}
+
+	err := controller.userService.CreateUser(input)
+	if err != nil {
+		if errors.Is(err, errors.ErrUsernameTaken) {
+			utils.ResponseWithMessage(ctx, http.StatusConflict, gin.H{
+				"message": err.Error(),
+			})
+			return
+		}
+		utils.ResponseWithMessage(ctx, http.StatusInternalServerError, gin.H{
+			"message": errors.ErrSomethingWentWrong,
+		})
+		return
+	}
+
+	utils.ResponseWithMessage(ctx, http.StatusCreated, gin.H{
+		"message": "User successfulyy created!",
+	})
 }
 
 func (controller *AdminController) GetAllUsers(ctx *gin.Context) {
