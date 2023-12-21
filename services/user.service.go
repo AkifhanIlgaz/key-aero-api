@@ -21,6 +21,10 @@ func NewUserService(ctx context.Context, db *sql.DB) *UserService {
 	}
 }
 
+func (service *UserService) CreateUser(user *models.User) error {
+	return nil
+}
+
 func (service *UserService) GetUserByUsername(username string) (*models.User, error) {
 	var user models.User
 	var roles string
