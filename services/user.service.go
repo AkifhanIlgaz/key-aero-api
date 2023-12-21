@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/AkifhanIlgaz/key-aero-api/models"
+	"github.com/AkifhanIlgaz/key-aero-api/utils"
 )
 
 type UserService struct {
@@ -20,20 +21,26 @@ func NewUserService(ctx context.Context, db *sql.DB) *UserService {
 	}
 }
 
-func (service *UserService) GetUser(username string) (*models.User, error) {
-	user := models.User{
-		Username: username,
-	}
+func (service *UserService) GetUserByUsername(username string) (*models.User, error) {
+	var user models.User
+	var roles string
 
 	row := service.db.QueryRow(`
-	SELECT id, password_hash FROM users
+	SELECT id, password_hash, roles FROM users
 		WHERE username=$1
 	`, username)
 
-	err := row.Scan(&user.Id, &user.PasswordHash)
+	err := row.Scan(&user.Id, &user.PasswordHash, &roles)
 	if err != nil {
 		return nil, fmt.Errorf("get user: %w", err)
 	}
 
+	user.Username = username
+	user.Roles = utils.ParseRoles(roles)
+
 	return &user, nil
+}
+
+func (service *UserService) GetUserById(id string) (*models.User, error) {
+	return nil, nil
 }

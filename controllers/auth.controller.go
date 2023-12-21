@@ -34,7 +34,7 @@ func (controller *AuthController) SignIn(ctx *gin.Context) {
 		return
 	}
 
-	user, err := controller.userService.GetUser(credentials.Username)
+	user, err := controller.userService.GetUserByUsername(credentials.Username)
 	if err != nil {
 		utils.ResponseWithMessage(ctx, http.StatusNotFound, gin.H{
 			"message": fmt.Sprintf("%v doesnt't exist", credentials.Username),
