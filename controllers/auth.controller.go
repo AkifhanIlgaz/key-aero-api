@@ -74,15 +74,15 @@ func (controller *AuthController) SignIn(ctx *gin.Context) {
 }
 
 func (controller *AuthController) SignOut(ctx *gin.Context) {
-	refreshToken, err := ctx.Cookie("refreshToken")
-	if err != nil {
+	var credentials models.SignOutCredentials
+	if err := ctx.ShouldBindJSON(&credentials); err != nil {
 		utils.ResponseWithMessage(ctx, http.StatusBadRequest, gin.H{
 			"message": errors.ErrRefreshTokenMissing.Error(),
 		})
 		return
 	}
 
-	err = controller.tokenService.DeleteRefreshToken(refreshToken)
+	err := controller.tokenService.DeleteRefreshToken(credentials.RefreshToken)
 	if err != nil {
 		if err != errors.ErrRefreshTokenMissing {
 			utils.ResponseWithMessage(ctx, http.StatusBadRequest, gin.H{
