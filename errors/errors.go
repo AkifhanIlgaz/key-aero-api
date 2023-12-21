@@ -9,4 +9,5 @@ var (
 	ErrUnexpectedMethod    error = errors.New("unexpected signing method")    // 400
 	ErrInvalidToken        error = errors.New("invalid token")                // 401
 	ErrRefreshTokenMissing error = errors.New("refresh token is missing")
+	ErrNotLoggedIn         error = errors.New("you are not logged in")
 )

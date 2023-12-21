@@ -3,9 +3,12 @@ package middleware
 import (
 	"net/http"
 
+	"github.com/AkifhanIlgaz/key-aero-api/errors"
+	"github.com/AkifhanIlgaz/key-aero-api/models"
 	"github.com/AkifhanIlgaz/key-aero-api/services"
 	"github.com/AkifhanIlgaz/key-aero-api/utils"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/exp/slices"
 )
 
 type UserMiddleware struct {
@@ -47,6 +50,35 @@ func (middleware *UserMiddleware) ExtractUser() gin.HandlerFunc {
 		}
 
 		ctx.Set("user", user)
+		ctx.Next()
+	}
+}
+
+func (middleware *UserMiddleware) HasRole(role string) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		val, exists := ctx.Get("user")
+		if !exists {
+			utils.ResponseWithMessage(ctx, http.StatusUnauthorized, gin.H{
+				"message": errors.ErrNotLoggedIn.Error(),
+			})
+			return
+		}
+
+		user, ok := val.(*models.User)
+		if !ok {
+			utils.ResponseWithMessage(ctx, http.StatusUnauthorized, gin.H{
+				"message": errors.ErrNotLoggedIn.Error(),
+			})
+			return
+		}
+
+		if !slices.Contains(user.Roles, role) {
+			utils.ResponseWithMessage(ctx, http.StatusUnauthorized, gin.H{
+				"message": "you do not have " + role + " role",
+			})
+			return
+		}
+
 		ctx.Next()
 	}
 }
