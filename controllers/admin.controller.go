@@ -20,3 +20,17 @@ func NewAdminController(userService *services.UserService, tokenService *service
 func (controller *AdminController) AddUser(ctx *gin.Context) {
 
 }
+
+func (controller *AdminController) GetUser(ctx *gin.Context) {
+
+}
+
+func (controller *AdminController) GetAllUsers(ctx *gin.Context) {
+
+}
+func (controller *AdminController) UpdateUser(ctx *gin.Context) {
+
+}
+func (controller *AdminController) DeleteUser(ctx *gin.Context) {
+
+}
