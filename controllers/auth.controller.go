@@ -34,7 +34,6 @@ func (controller *AuthController) SignIn(ctx *gin.Context) {
 		return
 	}
 
-	// TODO: Get user
 	user, err := controller.userService.GetUser(credentials.Username)
 	if err != nil {
 		utils.ResponseWithMessage(ctx, http.StatusNotFound, gin.H{
@@ -43,7 +42,6 @@ func (controller *AuthController) SignIn(ctx *gin.Context) {
 		return
 	}
 
-	// TODO: Verify password
 	err = utils.VerifyPassword(user.PasswordHash, credentials.Password)
 	if err != nil {
 		utils.ResponseWithMessage(ctx, http.StatusUnauthorized, gin.H{
@@ -52,7 +50,6 @@ func (controller *AuthController) SignIn(ctx *gin.Context) {
 		return
 	}
 
-	// TODO: Generate tokens
 	accessToken, err := controller.tokenService.GenerateAccessToken(user.Id)
 	if err != nil {
 		utils.ResponseWithMessage(ctx, http.StatusInternalServerError, gin.H{
@@ -69,7 +66,6 @@ func (controller *AuthController) SignIn(ctx *gin.Context) {
 		return
 	}
 
-	// TODO: Return with success
 	utils.ResponseWithMessage(ctx, http.StatusOK, gin.H{
 		"accessToken":  accessToken,
 		"refreshToken": refreshToken,
