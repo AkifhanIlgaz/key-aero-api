@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/AkifhanIlgaz/key-aero-api/cfg"
+	"github.com/AkifhanIlgaz/key-aero-api/errors"
 	"github.com/go-redis/redis/v8"
 	"github.com/golang-jwt/jwt"
 	"github.com/thanhpk/randstr"
@@ -89,7 +90,12 @@ func (service *TokenService) GenerateRefreshToken(uid string) (string, error) {
 }
 
 func (service *TokenService) DeleteRefreshToken(refreshToken string) error {
+
+
 	if err := service.redisClient.Del(service.ctx, refreshToken).Err(); err != nil {
+		if err == redis.Nil {
+			return errors.ErrRefreshTokenMissing
+		}
 		return fmt.Errorf("delete refresh token: %w", err)
 	}
 

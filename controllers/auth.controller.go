@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/AkifhanIlgaz/key-aero-api/cfg"
+	"github.com/AkifhanIlgaz/key-aero-api/errors"
 	"github.com/AkifhanIlgaz/key-aero-api/models"
 	"github.com/AkifhanIlgaz/key-aero-api/services"
 	"github.com/AkifhanIlgaz/key-aero-api/utils"
@@ -71,3 +72,33 @@ func (controller *AuthController) SignIn(ctx *gin.Context) {
 		"refreshToken": refreshToken,
 	})
 }
+
+func (controller *AuthController) SignOut(ctx *gin.Context) {
+	refreshToken, err := ctx.Cookie("refreshToken")
+	if err != nil {
+		utils.ResponseWithMessage(ctx, http.StatusBadRequest, gin.H{
+			"message": errors.ErrRefreshTokenMissing.Error(),
+		})
+		return
+	}
+
+	err = controller.tokenService.DeleteRefreshToken(refreshToken)
+	if err != nil {
+		if err != errors.ErrRefreshTokenMissing {
+			utils.ResponseWithMessage(ctx, http.StatusBadRequest, gin.H{
+				"message": errors.ErrRefreshTokenMissing.Error(),
+			})
+			return
+		}
+		utils.ResponseWithMessage(ctx, http.StatusInternalServerError, gin.H{
+			"message": errors.ErrSomethingWentWrong.Error(),
+		})
+		return
+	}
+
+	utils.ResponseWithMessage(ctx, http.StatusOK, gin.H{
+		"message": "Logged out successfully",
+	})
+}
+
+func (controller *AuthController) Refresh(ctx *gin.Context) {}
