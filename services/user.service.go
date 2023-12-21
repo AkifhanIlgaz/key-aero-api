@@ -21,6 +21,7 @@ func NewUserService(ctx context.Context, db *sql.DB) *UserService {
 	}
 }
 
+// TODO: Implement
 func (service *UserService) CreateUser(user *models.User) error {
 	return nil
 }

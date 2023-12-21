@@ -21,5 +21,4 @@ func (routeController *AuthRouteController) AuthRoute(rg *gin.RouterGroup) {
 	router.POST("/signin", routeController.authController.SignIn)
 	router.POST("/signout", routeController.authController.SignOut)
 	router.POST("/refresh", routeController.authController.Refresh)
-	router.POST("/add-user", routeController.authController.AddUser)
 }
