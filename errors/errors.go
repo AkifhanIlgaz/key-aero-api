@@ -10,4 +10,10 @@ var (
 	ErrInvalidToken        error = errors.New("invalid token")                // 401
 	ErrRefreshTokenMissing error = errors.New("refresh token is missing")
 	ErrNotLoggedIn         error = errors.New("you are not logged in")
+	ErrUsernameTaken       error = errors.New("username is already in use")
+)
+
+var (
+	As = errors.As
+	Is = errors.Is
 )

@@ -5,8 +5,11 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/AkifhanIlgaz/key-aero-api/errors"
 	"github.com/AkifhanIlgaz/key-aero-api/models"
 	"github.com/AkifhanIlgaz/key-aero-api/utils"
+	"github.com/jackc/pgconn"
+	"github.com/jackc/pgerrcode"
 )
 
 type UserService struct {
@@ -21,8 +24,31 @@ func NewUserService(ctx context.Context, db *sql.DB) *UserService {
 	}
 }
 
-// TODO: Implement
-func (service *UserService) CreateUser(user *models.User) error {
+func (service *UserService) CreateUser(input *models.AddUserInput) error {
+	passwordHash, err := utils.HashPassword(input.Password)
+	if err != nil {
+		return fmt.Errorf("create user: %w", err)
+	}
+
+	err = service.db.QueryRow(`
+		INSERT INTO users (username, password_hash, roles)
+		VALUES (
+			$1,
+			$2,
+			$3
+		);
+	`, input.Username, passwordHash, input.Roles).Scan()
+
+	if err != nil {
+		var pgError *pgconn.PgError
+		if errors.As(err, &pgError) {
+			if pgError.Code == pgerrcode.UniqueViolation {
+				return errors.ErrUsernameTaken
+			}
+		}
+		return fmt.Errorf("create user: %w", err)
+	}
+
 	return nil
 }
 
