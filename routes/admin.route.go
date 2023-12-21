@@ -20,15 +20,12 @@ func NewAdminRouteController(adminController *controllers.AdminController, userM
 }
 
 func (routeController *AdminRouteController) AdminRoute(rg *gin.RouterGroup) {
-	router := rg.Group("/admin")
-	router.Use(routeController.userMiddleware.ExtractUser(), routeController.userMiddleware.HasRole(utils.AdminRole))
-
-	userRouter := router.Group("/user")
+	router := rg.Group("/admin/user", routeController.userMiddleware.ExtractUser(), routeController.userMiddleware.HasRole(utils.AdminRole))
 	{
-		userRouter.GET("/all", routeController.adminController.GetAllUsers)
-		userRouter.POST("/add", routeController.adminController.AddUser)
-		userRouter.PUT("/update/:id", routeController.adminController.UpdateUser)
-		userRouter.DELETE("/delete/:id", routeController.adminController.DeleteUser)
+		router.GET("/all", routeController.adminController.GetAllUsers)
+		router.POST("/add", routeController.adminController.AddUser)
+		router.PUT("/update/:id", routeController.adminController.UpdateUser)
+		router.DELETE("/delete/:id", routeController.adminController.DeleteUser)
 	}
 
 }

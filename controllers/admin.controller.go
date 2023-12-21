@@ -47,7 +47,7 @@ func (controller *AdminController) AddUser(ctx *gin.Context) {
 	}
 
 	utils.ResponseWithMessage(ctx, http.StatusCreated, gin.H{
-		"message": "User successfulyy created!",
+		"message": "User successfully created!",
 	})
 }
 
