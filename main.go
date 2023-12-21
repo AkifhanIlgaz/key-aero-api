@@ -2,17 +2,15 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/AkifhanIlgaz/key-aero-api/cfg"
 	"github.com/AkifhanIlgaz/key-aero-api/controllers"
 	"github.com/AkifhanIlgaz/key-aero-api/db"
+	"github.com/AkifhanIlgaz/key-aero-api/middleware"
 	"github.com/AkifhanIlgaz/key-aero-api/routes"
 	"github.com/AkifhanIlgaz/key-aero-api/services"
-	"github.com/AkifhanIlgaz/key-aero-api/utils"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -41,21 +39,12 @@ func main() {
 
 	authController := controllers.NewAuthController(config, userService, tokenService)
 
+	userMiddleware := middleware.NewUserMiddleware(userService, tokenService)
+
 	authRouteController := routes.NewAuthRouteController(authController)
 
 	router := server.Group("/api")
-	router.GET("/health-checker", func(ctx *gin.Context) {
-		auth := strings.Fields(ctx.Request.Header.Get("Authorization"))
-
-		claims, err := tokenService.ParseAccessToken(auth[1])
-		if err != nil {
-			utils.ResponseWithMessage(ctx, http.StatusUnauthorized, gin.H{
-				"data": "invalid token" + err.Error(),
-			})
-		}
-
-		fmt.Println(claims.Subject)
-
+	router.GET("/health-checker", userMiddleware.ExtractUser(), func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": "API is healthy"})
 	})
 

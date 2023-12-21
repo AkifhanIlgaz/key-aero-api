@@ -42,5 +42,21 @@ func (service *UserService) GetUserByUsername(username string) (*models.User, er
 }
 
 func (service *UserService) GetUserById(id string) (*models.User, error) {
-	return nil, nil
+	var user models.User
+	var roles string
+
+	row := service.db.QueryRow(`
+	SELECT username, password_hash, roles FROM users
+		WHERE id=$1
+	`, id)
+
+	err := row.Scan(&user.Id, &user.PasswordHash, &roles)
+	if err != nil {
+		return nil, fmt.Errorf("get user: %w", err)
+	}
+
+	user.Id = id
+	user.Roles = utils.ParseRoles(roles)
+
+	return &user, nil
 }
