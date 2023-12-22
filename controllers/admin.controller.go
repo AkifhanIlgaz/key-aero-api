@@ -42,7 +42,7 @@ func (controller *AdminController) AddUser(ctx *gin.Context) {
 			return
 		}
 		utils.ResponseWithMessage(ctx, http.StatusInternalServerError, gin.H{
-			"message": errors.ErrSomethingWentWrong,
+			"message": err.Error(),
 		})
 		return
 	}

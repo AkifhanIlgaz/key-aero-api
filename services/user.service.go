@@ -30,14 +30,14 @@ func (service *UserService) CreateUser(input models.UserInput) error {
 		return fmt.Errorf("create user: %w", err)
 	}
 
-	err = service.db.QueryRow(`
+	_, err = service.db.Exec(`
 		INSERT INTO users (username, password_hash, roles)
 		VALUES (
 			$1,
 			$2,
 			$3
 		);
-	`, input.Username, passwordHash, input.Roles).Scan()
+	`, input.Username, passwordHash, input.Roles)
 
 	if err != nil {
 		var pgError *pgconn.PgError
