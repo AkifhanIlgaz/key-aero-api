@@ -10,17 +10,16 @@ const (
 )
 
 func ResponseWithMessage(ctx *gin.Context, code int, data gin.H) {
-	ctx.JSON(code, gin.H{
-		"status": responseMessage(code),
-		"data":   data,
-	})
-}
-
-func responseMessage(code int) string {
-	switch {
-	case code >= 200 && code < 300:
-		return statusSuccess
-	default:
-		return statusFail
+	if code >= 200 && code < 300 {
+		ctx.JSON(code, gin.H{
+			"status": statusSuccess,
+			"data":   data,
+		})
+	} else {
+		ctx.AbortWithStatusJSON(code, gin.H{
+			"status": statusFail,
+			"data":   data,
+		})
 	}
+
 }
