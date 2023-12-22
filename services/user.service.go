@@ -24,7 +24,7 @@ func NewUserService(ctx context.Context, db *sql.DB) *UserService {
 	}
 }
 
-func (service *UserService) CreateUser(input models.AddUserInput) error {
+func (service *UserService) CreateUser(input models.UserInput) error {
 	passwordHash, err := utils.HashPassword(input.Password)
 	if err != nil {
 		return fmt.Errorf("create user: %w", err)
@@ -85,11 +85,21 @@ func (service *UserService) GetUsers() ([]models.User, error) {
 	return users, nil
 }
 
-func (service *UserService) UpdateUser(uid string) error {
+func (service *UserService) UpdateUser(uid string, input models.UserInput) error {
+
 	return nil
 }
 
 func (service *UserService) DeleteUser(uid string) error {
+	_, err := service.db.Exec(`
+		DELETE FROM users
+		WHERE id = $1;
+	`, uid)
+
+	if err != nil {
+		return fmt.Errorf("delete user: %w", err)
+	}
+
 	return nil
 }
 

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/AkifhanIlgaz/key-aero-api/errors"
@@ -23,7 +24,7 @@ func NewAdminController(userService *services.UserService, tokenService *service
 }
 
 func (controller *AdminController) AddUser(ctx *gin.Context) {
-	var input models.AddUserInput
+	var input models.UserInput
 
 	if err := ctx.ShouldBindJSON(&input); err != nil {
 		utils.ResponseWithMessage(ctx, http.StatusBadRequest, gin.H{
@@ -64,8 +65,41 @@ func (controller *AdminController) GetAllUsers(ctx *gin.Context) {
 }
 
 func (controller *AdminController) UpdateUser(ctx *gin.Context) {
-
 }
-func (controller *AdminController) DeleteUser(ctx *gin.Context) {
 
+func (controller *AdminController) DeleteUser(ctx *gin.Context) {
+	user, err := utils.GetUserFromContext(ctx)
+	if err != nil {
+		utils.ResponseWithMessage(ctx, http.StatusUnauthorized, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	toDeletedId := ctx.Params.ByName("id")
+	if toDeletedId == "" {
+		utils.ResponseWithMessage(ctx, http.StatusBadRequest, gin.H{
+			"message": "id param missing",
+		})
+		return
+	}
+
+	if user.Id == toDeletedId {
+		utils.ResponseWithMessage(ctx, http.StatusUnauthorized, gin.H{
+			"message": "cannot delete yourself",
+		})
+		return
+	}
+
+	err = controller.userService.DeleteUser(toDeletedId)
+	if err != nil {
+		utils.ResponseWithMessage(ctx, http.StatusInternalServerError, gin.H{
+			"message": errors.ErrSomethingWentWrong.Error(),
+		})
+		return
+	}
+
+	utils.ResponseWithMessage(ctx, http.StatusOK, gin.H{
+		"message": fmt.Sprintf("User %v is successfully deleted", toDeletedId),
+	})
 }

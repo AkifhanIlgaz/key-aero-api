@@ -7,8 +7,8 @@ type User struct {
 	Roles        []string
 }
 
-type AddUserInput struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Roles    string `json:"roles"`
+type UserInput struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+	Roles    string `json:"roles" binding:"required"`
 }
