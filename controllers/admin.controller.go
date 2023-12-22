@@ -64,9 +64,6 @@ func (controller *AdminController) GetAllUsers(ctx *gin.Context) {
 	})
 }
 
-func (controller *AdminController) UpdateUser(ctx *gin.Context) {
-}
-
 func (controller *AdminController) DeleteUser(ctx *gin.Context) {
 	user, err := utils.GetUserFromContext(ctx)
 	if err != nil {

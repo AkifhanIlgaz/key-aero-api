@@ -85,11 +85,6 @@ func (service *UserService) GetUsers() ([]models.User, error) {
 	return users, nil
 }
 
-func (service *UserService) UpdateUser(uid string, input models.UserInput) error {
-
-	return nil
-}
-
 func (service *UserService) DeleteUser(uid string) error {
 	_, err := service.db.Exec(`
 		DELETE FROM users

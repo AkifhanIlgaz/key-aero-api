@@ -24,7 +24,6 @@ func (routeController *AdminRouteController) AdminRoute(rg *gin.RouterGroup) {
 	{
 		router.GET("/all", routeController.adminController.GetAllUsers)
 		router.POST("/add", routeController.adminController.AddUser)
-		router.PUT("/update/:id", routeController.adminController.UpdateUser)
 		router.DELETE("/delete/:id", routeController.adminController.DeleteUser)
 	}
 
