@@ -25,6 +25,9 @@ func (routeController *AdminRouteController) AdminRoute(rg *gin.RouterGroup) {
 		router.GET("/all", routeController.adminController.GetAllUsers)
 		router.POST("/add", routeController.adminController.AddUser)
 		router.DELETE("/delete/:id", routeController.adminController.DeleteUser)
+		// Profil
+		// Güncelleme
+		// Arama
 	}
 
 }

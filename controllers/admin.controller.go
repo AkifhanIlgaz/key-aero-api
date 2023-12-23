@@ -24,16 +24,16 @@ func NewAdminController(userService *services.UserService, tokenService *service
 }
 
 func (controller *AdminController) AddUser(ctx *gin.Context) {
-	var input models.UserInput
+	var user models.User
 
-	if err := ctx.ShouldBindJSON(&input); err != nil {
+	if err := ctx.ShouldBindJSON(&user); err != nil {
 		utils.ResponseWithMessage(ctx, http.StatusBadRequest, gin.H{
 			"message": "There are some missing required fields",
 		})
 		return
 	}
 
-	err := controller.userService.CreateUser(input)
+	err := controller.userService.CreateUser(user)
 	if err != nil {
 		if errors.Is(err, errors.ErrUsernameTaken) {
 			utils.ResponseWithMessage(ctx, http.StatusConflict, gin.H{
@@ -59,7 +59,7 @@ func (controller *AdminController) GetAllUsers(ctx *gin.Context) {
 		return
 	}
 
-	utils.ResponseWithMessage(ctx, http.StatusFound, gin.H{
+	utils.ResponseWithMessage(ctx, http.StatusOK, gin.H{
 		"users": users,
 	})
 }

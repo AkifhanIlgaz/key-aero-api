@@ -1,14 +1,12 @@
 package models
 
 type User struct {
-	Id           string
-	Username     string
-	PasswordHash string `json:"-"`
-	Roles        []string
-}
-
-type UserInput struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-	Roles    string `json:"roles" binding:"required"`
+	Id           string   `json:"id"`
+	Username     string   `json:"username" binding:"required"`
+	Password     string   `json:"-" binding:"required"`
+	PasswordHash string   `json:"-"`
+	Roles        []string `json:"roles" binding:"required"`
+	Email        string   `json:"email" binding:"required"`
+	Phone        string   `json:"phone" binding:"required"`
+	Department   string   `json:"department" binding:"required"`
 }
