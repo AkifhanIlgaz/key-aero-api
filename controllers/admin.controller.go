@@ -32,6 +32,7 @@ func (controller *AdminController) AddUser(ctx *gin.Context) {
 		})
 		return
 	}
+	// TODO: Validate phone and email
 
 	err := controller.userService.CreateUser(user)
 	if err != nil {
