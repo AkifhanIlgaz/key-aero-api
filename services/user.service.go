@@ -88,6 +88,15 @@ func (service *UserService) GetUsers() ([]models.User, error) {
 	return users, nil
 }
 
+func (service *UserService) UpdateUser(user *models.User) error {
+	return nil
+}
+
+// TODO: Implement this function
+func (service *UserService) SearchUser() ([]models.User, error) {
+	return nil, nil
+}
+
 func (service *UserService) DeleteUser(uid string) error {
 	_, err := service.db.Exec(`
 		DELETE FROM users

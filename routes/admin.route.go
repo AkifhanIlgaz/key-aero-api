@@ -22,12 +22,14 @@ func NewAdminRouteController(adminController *controllers.AdminController, userM
 func (routeController *AdminRouteController) AdminRoute(rg *gin.RouterGroup) {
 	router := rg.Group("/admin/user", routeController.userMiddleware.ExtractUser(), routeController.userMiddleware.HasRole(utils.AdminRole))
 	{
+		// TODO: Profile route
+
 		router.GET("/all", routeController.adminController.GetAllUsers)
+		// ?query params or body
+		router.GET("/search", routeController.adminController.SearchUser)
 		router.POST("/add", routeController.adminController.AddUser)
+		router.PUT("/update/:id", routeController.adminController.UpdateUser)
 		router.DELETE("/delete/:id", routeController.adminController.DeleteUser)
-		// Profil
-		// Güncelleme
-		// Arama
 	}
 
 }

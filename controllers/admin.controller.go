@@ -65,6 +65,16 @@ func (controller *AdminController) GetAllUsers(ctx *gin.Context) {
 	})
 }
 
+// TODO: Implement this function
+func (controller *AdminController) UpdateUser(ctx *gin.Context) {
+
+}
+
+// TODO: Implement this function
+func (controller *AdminController) SearchUser(ctx *gin.Context) {
+
+}
+
 func (controller *AdminController) DeleteUser(ctx *gin.Context) {
 	user, err := utils.GetUserFromContext(ctx)
 	if err != nil {
