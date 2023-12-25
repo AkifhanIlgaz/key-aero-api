@@ -123,7 +123,6 @@ func (controller *AdminController) SearchUser(ctx *gin.Context) {
 	utils.ResponseWithMessage(ctx, http.StatusOK, gin.H{
 		"users": users,
 	})
-	// username ?
 }
 
 func (controller *AdminController) DeleteUser(ctx *gin.Context) {

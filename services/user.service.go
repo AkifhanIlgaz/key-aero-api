@@ -108,7 +108,11 @@ func (service *UserService) SearchUser(search models.SearchUserInput) ([]models.
 	var users []models.User
 
 	query, params, err := service.psql.Select("id", "username", "roles", "email", "phone", "department").From("users").Where(squirrel.And{
-		squirrel.Like{"username": "%" + search.Username + "%"}, squirrel.Like{"email": "%" + search.Email + "%"},
+		squirrel.Like{"username": "%" + search.Username + "%"},
+		squirrel.Like{"roles": "%" + search.Roles + "%"},
+		squirrel.Like{"email": "%" + search.Email + "%"},
+		squirrel.Like{"phone": "%" + search.Phone + "%"},
+		squirrel.Like{"department": "%" + search.Department + "%"},
 	}).ToSql()
 	if err != nil {
 		return nil, fmt.Errorf("search user: %w", err)
