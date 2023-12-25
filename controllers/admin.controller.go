@@ -67,7 +67,36 @@ func (controller *AdminController) GetAllUsers(ctx *gin.Context) {
 
 // TODO: Implement this function
 func (controller *AdminController) UpdateUser(ctx *gin.Context) {
+	var user models.UpdateInput
 
+	if err := ctx.Bind(&user); err != nil {
+		utils.ResponseWithMessage(ctx, http.StatusBadRequest, gin.H{
+			"message": "There are some missing required fields",
+		})
+		return
+	}
+
+	id := ctx.Params.ByName("id")
+	if id == "" {
+		utils.ResponseWithMessage(ctx, http.StatusBadRequest, gin.H{
+			"message": "Query param id is missing",
+		})
+		return
+	}
+	user.Id = id
+
+	err := controller.userService.UpdateUser(&user)
+	if err != nil {
+		fmt.Println(err)
+		utils.ResponseWithMessage(ctx, http.StatusInternalServerError, gin.H{
+			"message": errors.ErrSomethingWentWrong.Error(),
+		})
+		return
+	}
+
+	utils.ResponseWithMessage(ctx, http.StatusOK, gin.H{
+		"message": fmt.Sprintf("User %v is successfully updated", id),
+	})
 }
 
 // TODO: Implement this function

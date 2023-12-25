@@ -90,7 +90,7 @@ func (service *UserService) GetUsers() ([]models.User, error) {
 
 // TODO: Implement this function
 // Tüm kullanıcı bilgilerini gönder
-func (service *UserService) UpdateUser(updatedUser *models.User) error {
+func (service *UserService) UpdateUser(updatedUser *models.UpdateInput) error {
 	_, err := service.db.Exec(`
 		UPDATE users
 		SET 
@@ -98,7 +98,7 @@ func (service *UserService) UpdateUser(updatedUser *models.User) error {
 		roles = $3,
 		email = $4,
 		phone = $5,
-		department = $6,
+		department = $6
 		WHERE id = $1;
 	`, updatedUser.Id, updatedUser.Username, utils.GenerateRolesString(updatedUser.Roles), updatedUser.Email, updatedUser.Phone, updatedUser.Department)
 	if err != nil {
