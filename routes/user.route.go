@@ -22,4 +22,5 @@ func (routeController *UserRouteController) UserRoute(rg *gin.RouterGroup) {
 	router := rg.Group("/user", routeController.userMiddleware.ExtractUser())
 
 	router.GET("/me", routeController.userController.Me)
+	router.PUT("/me/update", routeController.userController.Update)
 }
