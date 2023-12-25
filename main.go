@@ -39,11 +39,13 @@ func main() {
 
 	authController := controllers.NewAuthController(config, userService, tokenService)
 	adminController := controllers.NewAdminController(userService, tokenService)
+	userController := controllers.NewUserController(userService)
 
 	userMiddleware := middleware.NewUserMiddleware(userService, tokenService)
 
 	authRouteController := routes.NewAuthRouteController(authController)
 	adminRouteController := routes.NewAdminRouteController(adminController, userMiddleware)
+	userRouteController := routes.NewUserRouteController(userController, userMiddleware)
 
 	router := server.Group("/api")
 	router.GET("/health-checker", userMiddleware.ExtractUser(), userMiddleware.HasRole("zozak"), func(ctx *gin.Context) {
@@ -52,6 +54,7 @@ func main() {
 
 	authRouteController.AuthRoute(router)
 	adminRouteController.AdminRoute(router)
+	userRouteController.UserRoute(router)
 
 	log.Fatal(server.Run(":" + config.Port))
 }

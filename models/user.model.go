@@ -4,7 +4,7 @@ type User struct {
 	Id           string   `json:"id"`
 	Username     string   `json:"username" binding:"required"`
 	Password     string   `json:"password,omitempty" binding:"required"`
-	PasswordHash string   `json:"passwordHash,omitempty"`
+	PasswordHash string   `json:"-"`
 	Roles        []string `json:"roles" binding:"required"`
 	Email        string   `json:"email" binding:"required,email"`
 	Phone        string   `json:"phone" binding:"required"`

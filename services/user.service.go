@@ -175,7 +175,7 @@ func (service *UserService) GetUserById(id string) (*models.User, error) {
 	var user models.User
 	var roles string
 
-	err := row.Scan(&user.Id, &user.PasswordHash, &roles, &user.Email, &user.Phone, &user.Department)
+	err := row.Scan(&user.Username, &user.PasswordHash, &roles, &user.Email, &user.Phone, &user.Department)
 	if err != nil {
 		return nil, fmt.Errorf("get user: %w", err)
 	}
