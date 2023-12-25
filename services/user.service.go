@@ -8,6 +8,7 @@ import (
 	"github.com/AkifhanIlgaz/key-aero-api/errors"
 	"github.com/AkifhanIlgaz/key-aero-api/models"
 	"github.com/AkifhanIlgaz/key-aero-api/utils"
+	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgerrcode"
 )
@@ -88,7 +89,6 @@ func (service *UserService) GetUsers() ([]models.User, error) {
 	return users, nil
 }
 
-// TODO: Implement this function
 // Tüm kullanıcı bilgilerini gönder
 func (service *UserService) UpdateUser(updatedUser *models.UpdateInput) error {
 	_, err := service.db.Exec(`
@@ -109,7 +109,8 @@ func (service *UserService) UpdateUser(updatedUser *models.UpdateInput) error {
 }
 
 // TODO: Implement this function
-func (service *UserService) SearchUser() ([]models.User, error) {
+func (service *UserService) SearchUser(search []gin.Param) ([]models.User, error) {
+
 	return nil, nil
 }
 

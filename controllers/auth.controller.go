@@ -147,7 +147,3 @@ func (controller *AuthController) Refresh(ctx *gin.Context) {
 		"refreshToken": refreshToken,
 	})
 }
-
-func (controller *AuthController) AddUser(ctx *gin.Context) {
-
-}

@@ -32,7 +32,6 @@ func (controller *AdminController) AddUser(ctx *gin.Context) {
 		})
 		return
 	}
-	// TODO: Validate phone and email
 
 	err := controller.userService.CreateUser(user)
 	if err != nil {
@@ -65,7 +64,6 @@ func (controller *AdminController) GetAllUsers(ctx *gin.Context) {
 	})
 }
 
-// TODO: Implement this function
 func (controller *AdminController) UpdateUser(ctx *gin.Context) {
 	var user models.UpdateInput
 
@@ -101,7 +99,18 @@ func (controller *AdminController) UpdateUser(ctx *gin.Context) {
 
 // TODO: Implement this function
 func (controller *AdminController) SearchUser(ctx *gin.Context) {
+	var search models.SearchInput
 
+	fmt.Println(ctx.Query("email"))
+
+	err := ctx.BindQuery(&search)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(search)
+
+	// username ?
 }
 
 func (controller *AdminController) DeleteUser(ctx *gin.Context) {

@@ -6,7 +6,7 @@ type User struct {
 	Password     string   `json:"-" binding:"required"`
 	PasswordHash string   `json:"-"`
 	Roles        []string `json:"roles" binding:"required"`
-	Email        string   `json:"email" binding:"required"`
+	Email        string   `json:"email" binding:"required,email"`
 	Phone        string   `json:"phone" binding:"required"`
 	Department   string   `json:"department" binding:"required"`
 }
@@ -18,4 +18,12 @@ type UpdateInput struct {
 	Email      string   `json:"email" binding:"required"`
 	Phone      string   `json:"phone" binding:"required"`
 	Department string   `json:"department" binding:"required"`
+}
+
+type SearchInput struct {
+	Username   string   `json:"username,omitempty"`
+	Roles      []string `json:"roles,omitempty"`
+	Email      string   `json:"email" binding:"email"`
+	Phone      string   `json:"phone,omitempty"`
+	Department string   `json:"department,omitempty"`
 }
