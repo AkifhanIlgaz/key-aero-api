@@ -4,22 +4,26 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const (
-	statusSuccess = "success"
-	statusFail    = "fail"
+var (
+	successBase = gin.H{
+		"status": "success",
+	}
+	failBase = gin.H{
+		"status": "fail",
+	}
 )
 
 func ResponseWithMessage(ctx *gin.Context, code int, data gin.H) {
 	if code >= 200 && code < 300 {
-		ctx.JSON(code, gin.H{
-			"status": statusSuccess,
-			"data":   data,
-		})
+		ctx.JSON(code, unzipData(successBase, data))
 	} else {
-		ctx.AbortWithStatusJSON(code, gin.H{
-			"status": statusFail,
-			"data":   data,
-		})
+		ctx.AbortWithStatusJSON(code, unzipData(failBase, data))
 	}
+}
 
+func unzipData(base gin.H, data gin.H) gin.H {
+	for key, value := range data {
+		base[key] = value
+	}
+	return base
 }
