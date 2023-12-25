@@ -21,3 +21,11 @@ func GetUserFromContext(ctx *gin.Context) (*models.User, error) {
 
 	return user, nil
 }
+
+func ConvertToSliceString(anySlice []interface{}) []string {
+	stringSlice := make([]string, len(anySlice))
+	for i, v := range anySlice {
+		stringSlice[i] = fmt.Sprint(v)
+	}
+	return stringSlice
+}

@@ -27,6 +27,7 @@ func (controller *AdminController) AddUser(ctx *gin.Context) {
 	var user models.User
 
 	if err := ctx.ShouldBindJSON(&user); err != nil {
+		fmt.Println(err)
 		utils.ResponseWithMessage(ctx, http.StatusBadRequest, gin.H{
 			"message": "There are some missing required fields",
 		})
@@ -65,9 +66,9 @@ func (controller *AdminController) GetAllUsers(ctx *gin.Context) {
 }
 
 func (controller *AdminController) UpdateUser(ctx *gin.Context) {
-	var user models.UpdateInput
+	var updates map[string]any
 
-	if err := ctx.Bind(&user); err != nil {
+	if err := ctx.Bind(&updates); err != nil {
 		utils.ResponseWithMessage(ctx, http.StatusBadRequest, gin.H{
 			"message": "There are some missing required fields",
 		})
@@ -81,9 +82,14 @@ func (controller *AdminController) UpdateUser(ctx *gin.Context) {
 		})
 		return
 	}
-	user.Id = id
 
-	err := controller.userService.UpdateUser(&user)
+	if roles, ok := updates["roles"]; ok {
+		if anySlice, ok := roles.([]any); ok {
+			updates["roles"] = utils.GenerateRolesString(utils.ConvertToSliceString(anySlice))
+		}
+	}
+
+	err := controller.userService.UpdateUser(id, updates)
 	if err != nil {
 		fmt.Println(err)
 		utils.ResponseWithMessage(ctx, http.StatusInternalServerError, gin.H{
@@ -97,9 +103,8 @@ func (controller *AdminController) UpdateUser(ctx *gin.Context) {
 	})
 }
 
-// TODO: Implement this function
 func (controller *AdminController) SearchUser(ctx *gin.Context) {
-	var search models.SearchInput
+	var search models.SearchUserInput
 
 	err := ctx.ShouldBindQuery(&search)
 	if err != nil {

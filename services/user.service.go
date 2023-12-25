@@ -8,19 +8,22 @@ import (
 	"github.com/AkifhanIlgaz/key-aero-api/errors"
 	"github.com/AkifhanIlgaz/key-aero-api/models"
 	"github.com/AkifhanIlgaz/key-aero-api/utils"
+	"github.com/Masterminds/squirrel"
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgerrcode"
 )
 
 type UserService struct {
-	db  *sql.DB
-	ctx context.Context
+	db   *sql.DB
+	psql squirrel.StatementBuilderType
+	ctx  context.Context
 }
 
 func NewUserService(ctx context.Context, db *sql.DB) *UserService {
 	return &UserService{
-		db:  db,
-		ctx: ctx,
+		db:   db,
+		psql: squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar),
+		ctx:  ctx,
 	}
 }
 
@@ -30,18 +33,12 @@ func (service *UserService) CreateUser(input models.User) error {
 		return fmt.Errorf("create user: %w", err)
 	}
 
-	_, err = service.db.Exec(`
-		INSERT INTO users (username, password_hash, roles, email, phone, department)
-		VALUES (
-			$1,
-			$2,
-			$3,
-			$4,
-			$5,
-			$6
-		);
-	`, input.Username, passwordHash, input.Roles, input.Email, input.Phone, input.Department)
+	query, params, err := service.psql.Insert("users").Columns("username", "password_hash", "roles", "email", "phone", "department").Values(input.Username, passwordHash, utils.GenerateRolesString(input.Roles), input.Email, input.Phone, input.Department).ToSql()
+	if err != nil {
+		return fmt.Errorf("create user: %w", err)
+	}
 
+	_, err = service.db.Exec(query, params...)
 	if err != nil {
 		var pgError *pgconn.PgError
 		if errors.As(err, &pgError) {
@@ -58,9 +55,12 @@ func (service *UserService) CreateUser(input models.User) error {
 func (service *UserService) GetUsers() ([]models.User, error) {
 	var users []models.User
 
-	rows, err := service.db.Query(`
-	SELECT id, username, roles, email, phone, department FROM users;
-	`)
+	query, _, err := service.psql.Select("id", "username", "roles", "email", "phone", "department").From("users").ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("get all users: %w", err)
+	}
+
+	rows, err := service.db.Query(query)
 	if err != nil {
 		return nil, fmt.Errorf("get all users: %w", err)
 	}
@@ -89,17 +89,13 @@ func (service *UserService) GetUsers() ([]models.User, error) {
 }
 
 // Tüm kullanıcı bilgilerini gönder
-func (service *UserService) UpdateUser(updatedUser *models.UpdateInput) error {
-	_, err := service.db.Exec(`
-		UPDATE users
-		SET 
-		username = $2,
-		roles = $3,
-		email = $4,
-		phone = $5,
-		department = $6
-		WHERE id = $1;
-	`, updatedUser.Id, updatedUser.Username, utils.GenerateRolesString(updatedUser.Roles), updatedUser.Email, updatedUser.Phone, updatedUser.Department)
+func (service *UserService) UpdateUser(id string, updates map[string]any) error {
+	query, params, err := service.psql.Update("users").Where(squirrel.Eq{"id": id}).SetMap(updates).ToSql()
+	if err != nil {
+		return fmt.Errorf("update user: %w", err)
+	}
+
+	_, err = service.db.Exec(query, params...)
 	if err != nil {
 		return fmt.Errorf("update user: %w", err)
 	}
@@ -107,18 +103,33 @@ func (service *UserService) UpdateUser(updatedUser *models.UpdateInput) error {
 	return nil
 }
 
-// TODO: Implement this function
-func (service *UserService) SearchUser(search models.SearchInput) ([]models.User, error) {
+// TODO: update
+func (service *UserService) SearchUser(search models.SearchUserInput) ([]models.User, error) {
 	var users []models.User
 
-	rows, err := service.db.Query(`
-		SELECT id, username, roles, email, phone, department FROM users
-		WHERE username LIKE CONCAT('%', $1::TEXT, '%')
-		 AND roles LIKE CONCAT('%', $2::TEXT, '%')
-		 AND email LIKE CONCAT('%', $3::TEXT, '%')
-		 AND phone LIKE CONCAT('%', $4::TEXT, '%')
-		 AND department LIKE CONCAT('%', $5::TEXT, '%');
-	`, search.Username, search.Roles, search.Email, search.Phone, search.Department)
+	query, params, err := service.psql.Select("id", "username", "roles", "email", "phone", "department").From("users").Where(squirrel.And{
+		squirrel.Like{"username": "%" + search.Username + "%"}, squirrel.Like{"email": "%" + search.Email + "%"},
+	}).ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("search user: %w", err)
+	}
+
+	/*
+		rows, err := service.db.Query(`
+			SELECT id, username, roles, email, phone, department FROM users
+			WHERE username LIKE CONCAT('%', $1::TEXT, '%')
+			 AND roles LIKE CONCAT('%', $2::TEXT, '%')
+			 AND email LIKE CONCAT('%', $3::TEXT, '%')
+			 AND phone LIKE CONCAT('%', $4::TEXT, '%')
+			 AND department LIKE CONCAT('%', $5::TEXT, '%');
+		`, search.Username, search.Roles, search.Email, search.Phone, search.Department)
+		if err != nil {
+			return nil, fmt.Errorf("search user: %w", err)
+		}
+		defer rows.Close()
+	*/
+
+	rows, err := service.db.Query(query, params...)
 	if err != nil {
 		return nil, fmt.Errorf("search user: %w", err)
 	}
@@ -140,18 +151,19 @@ func (service *UserService) SearchUser(search models.SearchInput) ([]models.User
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("get all users: %w", err)
+		return nil, fmt.Errorf("search user: %w", err)
 	}
 
 	return users, nil
 }
 
 func (service *UserService) DeleteUser(uid string) error {
-	_, err := service.db.Exec(`
-		DELETE FROM users
-		WHERE id = $1;
-	`, uid)
+	query, params, err := service.psql.Delete("users").Where(squirrel.Eq{"id": uid}).ToSql()
+	if err != nil {
+		return fmt.Errorf("delete user: %w", err)
+	}
 
+	_, err = service.db.Exec(query, params...)
 	if err != nil {
 		return fmt.Errorf("delete user: %w", err)
 	}
@@ -160,15 +172,19 @@ func (service *UserService) DeleteUser(uid string) error {
 }
 
 func (service *UserService) GetUserByUsername(username string) (*models.User, error) {
+	query, param, err := service.psql.Select("id", "password_hash", "roles", "email", "phone", "department").From("users").Where(squirrel.Eq{
+		"username": username,
+	}).ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("get user: %w", err)
+	}
+
 	var user models.User
 	var roles string
 
-	row := service.db.QueryRow(`
-	SELECT id, password_hash, roles, email, phone, department FROM users
-		WHERE username=$1
-	`, username)
+	row := service.db.QueryRow(query, param...)
 
-	err := row.Scan(&user.Id, &user.PasswordHash, &roles, &user.Email, &user.Phone, &user.Department)
+	err = row.Scan(&user.Id, &user.PasswordHash, &roles, &user.Email, &user.Phone, &user.Department)
 	if err != nil {
 		return nil, fmt.Errorf("get user: %w", err)
 	}
@@ -180,15 +196,19 @@ func (service *UserService) GetUserByUsername(username string) (*models.User, er
 }
 
 func (service *UserService) GetUserById(id string) (*models.User, error) {
+	query, param, err := service.psql.Select("username", "password_hash", "roles", "email", "phone", "department").From("users").Where(squirrel.Eq{
+		"id": id,
+	}).ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("get user: %w", err)
+	}
+
 	var user models.User
 	var roles string
 
-	row := service.db.QueryRow(`
-	SELECT username, password_hash, roles, email, phone, department FROM users
-		WHERE id=$1
-	`, id)
+	row := service.db.QueryRow(query, param...)
 
-	err := row.Scan(&user.Id, &user.PasswordHash, &roles, &user.Email, &user.Phone, &user.Department)
+	err = row.Scan(&user.Id, &user.PasswordHash, &roles, &user.Email, &user.Phone, &user.Department)
 	if err != nil {
 		return nil, fmt.Errorf("get user: %w", err)
 	}
