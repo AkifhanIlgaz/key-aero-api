@@ -101,15 +101,23 @@ func (controller *AdminController) UpdateUser(ctx *gin.Context) {
 func (controller *AdminController) SearchUser(ctx *gin.Context) {
 	var search models.SearchInput
 
-	fmt.Println(ctx.Query("email"))
-
-	err := ctx.BindQuery(&search)
+	err := ctx.ShouldBindQuery(&search)
 	if err != nil {
-		fmt.Println(err)
+		utils.ResponseWithMessage(ctx, http.StatusBadRequest, gin.H{
+			"message": "There are some missing required fields",
+		})
+		return
 	}
 
-	fmt.Println(search)
+	users, err := controller.userService.SearchUser(search)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
+	utils.ResponseWithMessage(ctx, http.StatusOK, gin.H{
+		"users": users,
+	})
 	// username ?
 }
 

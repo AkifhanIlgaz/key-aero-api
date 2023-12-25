@@ -21,9 +21,9 @@ type UpdateInput struct {
 }
 
 type SearchInput struct {
-	Username   string   `json:"username,omitempty"`
-	Roles      []string `json:"roles,omitempty"`
-	Email      string   `json:"email" binding:"email"`
-	Phone      string   `json:"phone,omitempty"`
-	Department string   `json:"department,omitempty"`
+	Username   string `form:"username"`
+	Roles      string `form:"roles"`
+	Email      string `form:"email"`
+	Phone      string `form:"phone"`
+	Department string `form:"department"`
 }

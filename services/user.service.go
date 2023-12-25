@@ -8,7 +8,6 @@ import (
 	"github.com/AkifhanIlgaz/key-aero-api/errors"
 	"github.com/AkifhanIlgaz/key-aero-api/models"
 	"github.com/AkifhanIlgaz/key-aero-api/utils"
-	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgerrcode"
 )
@@ -109,9 +108,42 @@ func (service *UserService) UpdateUser(updatedUser *models.UpdateInput) error {
 }
 
 // TODO: Implement this function
-func (service *UserService) SearchUser(search []gin.Param) ([]models.User, error) {
+func (service *UserService) SearchUser(search models.SearchInput) ([]models.User, error) {
+	var users []models.User
 
-	return nil, nil
+	rows, err := service.db.Query(`
+		SELECT id, username, roles, email, phone, department FROM users
+		WHERE username LIKE CONCAT('%', $1::TEXT, '%')
+		 AND roles LIKE CONCAT('%', $2::TEXT, '%')
+		 AND email LIKE CONCAT('%', $3::TEXT, '%')
+		 AND phone LIKE CONCAT('%', $4::TEXT, '%')
+		 AND department LIKE CONCAT('%', $5::TEXT, '%');
+	`, search.Username, search.Roles, search.Email, search.Phone, search.Department)
+	if err != nil {
+		return nil, fmt.Errorf("search user: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var user models.User
+		var roles string
+
+		err := rows.Scan(&user.Id, &user.Username, &roles, &user.Email, &user.Phone, &user.Department)
+		if err != nil {
+			// TODO: Better error handling
+			fmt.Println(err)
+			continue
+		}
+
+		user.Roles = utils.ParseRoles(roles)
+		users = append(users, user)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("get all users: %w", err)
+	}
+
+	return users, nil
 }
 
 func (service *UserService) DeleteUser(uid string) error {
