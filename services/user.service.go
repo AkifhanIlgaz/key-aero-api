@@ -61,7 +61,6 @@ func (service *UserService) GetUsers() ([]models.User, error) {
 
 		err := rows.Scan(&user.Id, &user.Username, &roles, &user.Email, &user.Phone, &user.Department)
 		if err != nil {
-			// TODO: Better error handling
 			fmt.Println(err)
 			continue
 		}
@@ -124,7 +123,6 @@ func (service *UserService) SearchUser(search models.SearchUserInput) ([]models.
 
 		err := rows.Scan(&user.Id, &user.Username, &roles, &user.Email, &user.Phone, &user.Department)
 		if err != nil {
-			// TODO: Better error handling
 			fmt.Println(err)
 			continue
 		}
