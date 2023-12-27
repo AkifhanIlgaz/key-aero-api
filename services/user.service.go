@@ -104,13 +104,18 @@ func (service *UserService) SearchUser(search models.SearchUserInput) ([]models.
 		defer rows.Close()
 	*/
 
-	rows, err := service.psql.Select("id", "username", "roles", "email", "phone", "department").From("users").Where(squirrel.And{
+	roles := utils.ParseRoles(search.Roles)
+	where := squirrel.And{
 		squirrel.Like{"username": "%" + search.Username + "%"},
-		squirrel.Like{"roles": "%" + search.Roles + "%"},
 		squirrel.Like{"email": "%" + search.Email + "%"},
 		squirrel.Like{"phone": "%" + search.Phone + "%"},
 		squirrel.Like{"department": "%" + search.Department + "%"},
-	}).Query()
+	}
+	for _, role := range roles {
+		where = append(where, squirrel.Like{"roles": "%" + role + "%"})
+	}
+
+	rows, err := service.psql.Select("id", "username", "roles", "email", "phone", "department").From("users").Where(where).Query()
 	if err != nil {
 		return nil, fmt.Errorf("search user: %w", err)
 	}
