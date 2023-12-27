@@ -31,7 +31,7 @@ func (service *UserService) CreateUser(input models.User) error {
 		return fmt.Errorf("create user: %w", err)
 	}
 
-	_, err = service.psql.Insert("users").Columns("username", "password_hash", "roles", "email", "phone", "department").Values(input.Username, passwordHash, utils.GenerateRolesString(input.Roles), input.Email, input.Phone, input.Department).Exec()
+	_, err = service.psql.Insert("users").Columns("username", "password_hash", "roles", "email", "phone", "department", "name", "last_name").Values(input.Username, passwordHash, utils.GenerateRolesString(input.Roles), input.Email, input.Phone, input.Department, input.Name, input.LastName).Exec()
 	if err != nil {
 		var pgError *pgconn.PgError
 		if errors.As(err, &pgError) {
@@ -48,7 +48,7 @@ func (service *UserService) CreateUser(input models.User) error {
 func (service *UserService) GetUsers() ([]models.User, error) {
 	var users []models.User
 
-	rows, err := service.psql.Select("id", "username", "roles", "email", "phone", "department").From("users").Query()
+	rows, err := service.psql.Select("id", "username", "roles", "email", "phone", "department", "name", "last_name").From("users").Query()
 	if err != nil {
 		return nil, fmt.Errorf("get all users: %w", err)
 	}
@@ -59,7 +59,7 @@ func (service *UserService) GetUsers() ([]models.User, error) {
 		var user models.User
 		var roles string
 
-		err := rows.Scan(&user.Id, &user.Username, &roles, &user.Email, &user.Phone, &user.Department)
+		err := rows.Scan(&user.Id, &user.Username, &roles, &user.Email, &user.Phone, &user.Department, &user.Name, &user.LastName)
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -86,6 +86,8 @@ func (service *UserService) UpdateUser(id string, updates map[string]any) error 
 	return nil
 }
 
+// TODO: Her rolü ayrı ara || Sırası farklı olabilir
+// TODO: Name, LastName ekle
 func (service *UserService) SearchUser(search models.SearchUserInput) ([]models.User, error) {
 	var users []models.User
 
@@ -149,14 +151,14 @@ func (service *UserService) DeleteUser(uid string) error {
 }
 
 func (service *UserService) GetUserByUsername(username string) (*models.User, error) {
-	row := service.psql.Select("id", "password_hash", "roles", "email", "phone", "department").From("users").Where(squirrel.Eq{
+	row := service.psql.Select("id", "password_hash", "roles", "email", "phone", "department", "name", "last_name").From("users").Where(squirrel.Eq{
 		"username": username,
 	}).QueryRow()
 
 	var user models.User
 	var roles string
 
-	err := row.Scan(&user.Id, &user.PasswordHash, &roles, &user.Email, &user.Phone, &user.Department)
+	err := row.Scan(&user.Id, &user.PasswordHash, &roles, &user.Email, &user.Phone, &user.Department, &user.Name, &user.LastName)
 	if err != nil {
 		return nil, fmt.Errorf("get user: %w", err)
 	}
@@ -168,14 +170,14 @@ func (service *UserService) GetUserByUsername(username string) (*models.User, er
 }
 
 func (service *UserService) GetUserById(id string) (*models.User, error) {
-	row := service.psql.Select("username", "password_hash", "roles", "email", "phone", "department").From("users").Where(squirrel.Eq{
+	row := service.psql.Select("username", "password_hash", "roles", "email", "phone", "department", "name", "last_name").From("users").Where(squirrel.Eq{
 		"id": id,
 	}).QueryRow()
 
 	var user models.User
 	var roles string
 
-	err := row.Scan(&user.Username, &user.PasswordHash, &roles, &user.Email, &user.Phone, &user.Department)
+	err := row.Scan(&user.Username, &user.PasswordHash, &roles, &user.Email, &user.Phone, &user.Department, &user.Name, &user.LastName)
 	if err != nil {
 		return nil, fmt.Errorf("get user: %w", err)
 	}
