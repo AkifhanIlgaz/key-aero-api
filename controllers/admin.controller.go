@@ -14,12 +14,14 @@ import (
 type AdminController struct {
 	userService  *services.UserService
 	tokenService *services.TokenService
+	emailService *services.EmailService
 }
 
-func NewAdminController(userService *services.UserService, tokenService *services.TokenService) *AdminController {
+func NewAdminController(userService *services.UserService, tokenService *services.TokenService, emailService *services.EmailService) *AdminController {
 	return &AdminController{
 		userService:  userService,
 		tokenService: tokenService,
+		emailService: emailService,
 	}
 }
 
@@ -42,6 +44,15 @@ func (controller *AdminController) AddUser(ctx *gin.Context) {
 			})
 			return
 		}
+		utils.ResponseWithMessage(ctx, http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	err = controller.emailService.NewUser(user.Email, user.Username, user.Password)
+	if err != nil {
+		fmt.Println(err)
 		utils.ResponseWithMessage(ctx, http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
 		})

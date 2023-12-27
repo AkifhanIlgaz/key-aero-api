@@ -37,12 +37,14 @@ require (
 	golang.org/x/crypto v0.16.0 // indirect
 	golang.org/x/net v0.19.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
+	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 )
 
 require (
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/gin-contrib/cors v1.5.0
 	github.com/gin-gonic/gin v1.9.1
+	github.com/go-mail/mail/v2 v2.3.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/hashicorp/hcl v1.0.0 // indirect

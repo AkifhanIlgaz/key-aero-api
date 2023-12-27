@@ -23,6 +23,11 @@ type Config struct {
 	AccessTokenPublicKey  string        `mapstructure:"ACCESS_TOKEN_PUBLIC_KEY"`
 	AccessTokenExpiresIn  time.Duration `mapstructure:"ACCESS_TOKEN_EXPIRED_IN"`
 	AccessTokenMaxAge     int           `mapstructure:"ACCESS_TOKEN_MAXAGE"`
+
+	SMTPHost     string `mapstructure:"SMTP_HOST"`
+	SMTPPort     int    `mapstructure:"SMTP_PORT"`
+	SMTPUsername string `mapstructure:"SMTP_USERNAME"`
+	SMTPPassword string `mapstructure:"SMTP_PASSWORD"`
 }
 
 func LoadConfig(path string) (*Config, error) {

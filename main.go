@@ -36,9 +36,10 @@ func main() {
 
 	userService := services.NewUserService(ctx, databases.Postgres)
 	tokenService := services.NewTokenService(ctx, config, databases.Redis)
+	emailService := services.NewEmailService(config)
 
 	authController := controllers.NewAuthController(config, userService, tokenService)
-	adminController := controllers.NewAdminController(userService, tokenService)
+	adminController := controllers.NewAdminController(userService, tokenService, emailService)
 	userController := controllers.NewUserController(userService)
 
 	userMiddleware := middleware.NewUserMiddleware(userService, tokenService)
