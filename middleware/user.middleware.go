@@ -2,13 +2,13 @@ package middleware
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/AkifhanIlgaz/key-aero-api/errors"
 	"github.com/AkifhanIlgaz/key-aero-api/models"
 	"github.com/AkifhanIlgaz/key-aero-api/services"
 	"github.com/AkifhanIlgaz/key-aero-api/utils"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/exp/slices"
 )
 
 type UserMiddleware struct {
@@ -72,7 +72,7 @@ func (middleware *UserMiddleware) HasRole(role string) gin.HandlerFunc {
 			return
 		}
 
-		if !slices.Contains(user.Roles, role) {
+		if !strings.Contains(user.Roles, role) {
 			utils.ResponseWithMessage(ctx, http.StatusUnauthorized, gin.H{
 				"message": "you do not have " + role + " role",
 			})
