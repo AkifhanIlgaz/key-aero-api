@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/AkifhanIlgaz/key-aero-api/errors"
+	"github.com/AkifhanIlgaz/key-aero-api/models"
 	"github.com/AkifhanIlgaz/key-aero-api/services"
 	"github.com/AkifhanIlgaz/key-aero-api/utils"
 	"github.com/gin-gonic/gin"
@@ -67,5 +68,44 @@ func (controller *UserController) Update(ctx *gin.Context) {
 
 	utils.ResponseWithMessage(ctx, http.StatusOK, gin.H{
 		"message": "Successfully updated",
+	})
+}
+
+func (controller *UserController) ChangePassword(ctx *gin.Context) {
+	var credentials models.ChangePasswordCredentials
+
+	if err := ctx.ShouldBindJSON(&credentials); err != nil {
+		utils.ResponseWithMessage(ctx, http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	user, err := utils.GetUserFromContext(ctx)
+	if err != nil {
+		utils.ResponseWithMessage(ctx, http.StatusUnauthorized, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	err = utils.VerifyPassword(user.PasswordHash, credentials.OldPassword)
+	if err != nil {
+		utils.ResponseWithMessage(ctx, http.StatusUnauthorized, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	err = controller.userService.ChangePassword(user.Id, credentials.Password)
+	if err != nil {
+		utils.ResponseWithMessage(ctx, http.StatusUnauthorized, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	utils.ResponseWithMessage(ctx, http.StatusOK, gin.H{
+		"message": "Password changed successfully",
 	})
 }

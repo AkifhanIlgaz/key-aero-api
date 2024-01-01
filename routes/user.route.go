@@ -23,5 +23,6 @@ func (routeController *UserRouteController) UserRoute(rg *gin.RouterGroup) {
 
 	router.GET("/me", routeController.userController.Me)
 	router.PUT("/me/update", routeController.userController.Update)
+	router.PUT("/me/change-password", routeController.userController.ChangePassword)
 	// TODO: Update password endpoint
 }

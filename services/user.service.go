@@ -84,8 +84,26 @@ func (service *UserService) UpdateUser(id string, updates map[string]any) error 
 	return nil
 }
 
+func (service *UserService) ChangePassword(id string, newPassword string) error {
+	hashedPassword, err := utils.HashPassword(newPassword)
+	if err != nil {
+		return fmt.Errorf("change password: %w", err)
+	}
+
+	res, err := service.psql.Update("users").Where(squirrel.Eq{"id": id}).Set("password_hash", hashedPassword).Exec()
+	if err != nil {
+		return fmt.Errorf("change password: %w", err)
+	}
+
+	if rowsAffected, err := res.RowsAffected(); err != nil || rowsAffected == 0 {
+		return fmt.Errorf("change password: %w", err)
+	}
+
+	return nil
+}
+
 // TODO: Her rolü ayrı ara || Sırası farklı olabilir
-// TODO: Name, LastName ekle
+// TODO: Name ekle
 func (service *UserService) SearchUser(search models.SearchUserInput) ([]models.User, error) {
 	var users []models.User
 
