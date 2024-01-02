@@ -32,7 +32,6 @@ func (controller *UserController) Me(ctx *gin.Context) {
 	utils.ResponseWithMessage(ctx, http.StatusOK, gin.H{
 		"user": user,
 	})
-	return
 }
 
 func (controller *UserController) Update(ctx *gin.Context) {
