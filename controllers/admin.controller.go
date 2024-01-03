@@ -145,7 +145,7 @@ func (controller *AdminController) DeleteUser(ctx *gin.Context) {
 		return
 	}
 
-	toDeletedId := ctx.Query("id")
+	toDeletedId := ctx.Param("id")
 	if toDeletedId == "" {
 		utils.ResponseWithMessage(ctx, http.StatusBadRequest, gin.H{
 			"message": "id param missing",
