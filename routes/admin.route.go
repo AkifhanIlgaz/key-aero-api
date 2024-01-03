@@ -26,7 +26,7 @@ func (routeController *AdminRouteController) AdminRoute(rg *gin.RouterGroup) {
 		router.GET("/search", routeController.adminController.SearchUser)
 		router.POST("/add", routeController.adminController.AddUser)
 		router.PUT("/update/:id", routeController.adminController.UpdateUser)
-		router.DELETE("/delete", routeController.adminController.DeleteUser)
+		router.DELETE("/delete/:id", routeController.adminController.DeleteUser)
 	}
 
 }

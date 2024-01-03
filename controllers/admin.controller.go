@@ -9,7 +9,6 @@ import (
 	"github.com/AkifhanIlgaz/key-aero-api/services"
 	"github.com/AkifhanIlgaz/key-aero-api/utils"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/exp/slices"
 )
 
 type AdminController struct {
@@ -146,22 +145,22 @@ func (controller *AdminController) DeleteUser(ctx *gin.Context) {
 		return
 	}
 
-	toDeletedIds := ctx.QueryArray("id[]")
-	if len(toDeletedIds) == 0 {
+	toDeletedId := ctx.Query("id")
+	if toDeletedId == "" {
 		utils.ResponseWithMessage(ctx, http.StatusBadRequest, gin.H{
 			"message": "id param missing",
 		})
 		return
 	}
 
-	if slices.Contains(toDeletedIds, user.Id) {
+	if toDeletedId == user.Id {
 		utils.ResponseWithMessage(ctx, http.StatusUnauthorized, gin.H{
 			"message": "cannot delete yourself",
 		})
 		return
 	}
 
-	err = controller.userService.DeleteUser(toDeletedIds)
+	err = controller.userService.DeleteUser(toDeletedId)
 	if err != nil {
 		utils.ResponseWithMessage(ctx, http.StatusInternalServerError, gin.H{
 			"message": errors.ErrSomethingWentWrong.Error(),
@@ -170,6 +169,6 @@ func (controller *AdminController) DeleteUser(ctx *gin.Context) {
 	}
 
 	utils.ResponseWithMessage(ctx, http.StatusOK, gin.H{
-		"message": fmt.Sprintf("Users %v is successfully deleted", toDeletedIds),
+		"message": fmt.Sprintf("User #%v is successfully deleted", toDeletedId),
 	})
 }

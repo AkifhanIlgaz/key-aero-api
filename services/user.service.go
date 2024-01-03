@@ -159,9 +159,8 @@ func (service *UserService) SearchUser(search models.SearchUserInput) ([]models.
 	return users, nil
 }
 
-func (service *UserService) DeleteUser(uids []string) error {
-	_, err := service.psql.Delete("users").Where(squirrel.Eq{"id": uids}).Exec()
-	// squirrel.Eq{"id": uid}
+func (service *UserService) DeleteUser(id string) error {
+	_, err := service.psql.Delete("users").Where(squirrel.Eq{"id": id}).Exec()
 	if err != nil {
 		return fmt.Errorf("delete user: %w", err)
 	}
